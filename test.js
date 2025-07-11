@@ -123,3 +123,5 @@ assert.equal(majSubV.analysis[1].degree, 'subV\u2206');
 const interc = context.reharmonizationOptions('D','m7','II','C','Mayor');
 const mi = interc.filter(o => o.name.startsWith('Intercambio modal')).map(o => o.chords[0]);
 assert.ok(mi.includes('Dm7(b5)') && mi.includes('Dm7'));
+const label = interc.find(o => o.name.includes('MenorArmonica')).name;
+assert.equal(label, 'Intercambio modal (MenorArmonica: D\u00ba, Dm7(b5))');
