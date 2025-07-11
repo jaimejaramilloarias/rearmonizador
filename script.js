@@ -1,6 +1,7 @@
 const NOTES_SHARP = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 const NOTES_FLAT  = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
 const BASE_NOTES = {C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+const DEFAULT_FLATS = new Set([1,3,8,10]);
 
 function noteToSemitone(note){
     note = note.replace(/\d/g, '');
@@ -137,7 +138,12 @@ function guessKey(chords){
     if(!best) return null;
     const flatCount = chords.filter(c=>/b/.test(c.root)).length;
     const sharpCount = chords.filter(c=>/#/.test(c.root)).length;
-    const preferFlat = flatCount>sharpCount;
+    let preferFlat;
+    if(flatCount!==sharpCount){
+        preferFlat = flatCount>sharpCount;
+    } else {
+        preferFlat = DEFAULT_FLATS.has(best.semi);
+    }
     const note = preferFlat ? semitoneToNoteFlat(best.semi) : semitoneToNote(best.semi);
     return {score:best.score, note, scale:best.scale};
 }
@@ -161,8 +167,9 @@ function isSubV(ch, next){
 
 function possibleAnalysesForChord(ch){
     const DEG = ['I','II','III','IV','V','VI','VII'];
-    const flat = /b/.test(ch.root);
-    const noteFn = flat ? semitoneToNoteFlat : semitoneToNote;
+    const hasFlat = /b/.test(ch.root);
+    const hasSharp = /#/.test(ch.root);
+    const noteFn = hasFlat ? semitoneToNoteFlat : hasSharp ? semitoneToNote : (s => (DEFAULT_FLATS.has(s) ? semitoneToNoteFlat(s) : semitoneToNote(s)));
     const out = [];
     for(const scale of SCALE_PRIORITY){
         for(let semi=0; semi<12; semi++){
@@ -436,6 +443,20 @@ function simpleSubstitutions(root, suffix, degree, keyRoot, keyScale){
     return candidates;
 }
 
+function modalInterchangeChords(degree, keyRoot, keyScale){
+    const idxMatch = degree && degree.match(/^(VII|VI|V|IV|III|II|I)/);
+    if(!idxMatch || !keyRoot || !keyScale) return [];
+    const deg = idxMatch[1];
+    const out = [];
+    for(const sc of SCALE_PRIORITY){
+        if(sc === keyScale) continue;
+        const note = noteForDegree(keyRoot, deg, sc);
+        const suf = defaultSuffixForDegree(sc, deg);
+        out.push(note + suf);
+    }
+    return out;
+}
+
 function reharmonizationOptions(root, suffix='', degree=null, keyRoot=null, keyScale=null){
     const opts = [];
     const isDim = /(dim|º|dim7|º7|m7\(b5\))/i.test(suffix);
@@ -457,6 +478,10 @@ function reharmonizationOptions(root, suffix='', degree=null, keyRoot=null, keyS
 
     for(const sub of simpleSubstitutions(root, suffix, degree, keyRoot, keyScale)){
         opts.push({name:`Sustituci\u00f3n simple (${sub})`, chords:[sub]});
+    }
+
+    for(const mod of modalInterchangeChords(degree, keyRoot, keyScale)){
+        opts.push({name:`Intercambio modal (${mod})`, chords:[mod]});
     }
 
     const lc = lineClicheFor(root, suffix, degree);
