@@ -600,6 +600,7 @@ function initRearmonizador(options = {}) {
                     .map(o => `<option value="${o.chords.join(' ')}" data-name="${o.name}">${o.name}</option>`)
                     .join('');
                 rehSel.innerHTML = `<option value="">Rearmonizar...</option>${newOpts}`;
+                rehSel.selectedIndex = 0;
             });
 
             rehSel.addEventListener('change', ev => {
