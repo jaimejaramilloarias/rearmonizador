@@ -447,12 +447,15 @@ function modalInterchangeChords(degree, keyRoot, keyScale){
     const idxMatch = degree && degree.match(/^(VII|VI|V|IV|III|II|I)/);
     if(!idxMatch || !keyRoot || !keyScale) return [];
     const deg = idxMatch[1];
+    const idxMap = {I:0,II:1,III:2,IV:3,V:4,VI:5,VII:6};
     const out = [];
     for(const sc of SCALE_PRIORITY){
         if(sc === keyScale) continue;
         const note = noteForDegree(keyRoot, deg, sc);
-        const suf = defaultSuffixForDegree(sc, deg);
-        out.push(note + suf);
+        const sufs = SCALE_DATA[sc].chords[idxMap[deg]];
+        const chords = sufs.map(s => note + s);
+        const def = note + defaultSuffixForDegree(sc, deg);
+        out.push({scale:sc, chords, defaultChord:def});
     }
     return out;
 }
@@ -481,7 +484,8 @@ function reharmonizationOptions(root, suffix='', degree=null, keyRoot=null, keyS
     }
 
     for(const mod of modalInterchangeChords(degree, keyRoot, keyScale)){
-        opts.push({name:`Intercambio modal (${mod})`, chords:[mod]});
+        const label = `${mod.scale}: ${mod.chords.join(', ')}`;
+        opts.push({name:`Intercambio modal (${label})`, chords:[mod.defaultChord]});
     }
 
     const lc = lineClicheFor(root, suffix, degree);
