@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Rearmonizador Jaramillo</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="site-header">
+        <h1>Rearmonizador Jaramillo</h1>
+    </header>
+    <main class="site-main">
+    <section class="input-section">
+        <h2>Progresión original</h2>
+        <p>Ingrese una progresión de acordes separada por espacios (ejemplo: Cmaj7 Dm7 G7 Cmaj7)</p>
+        <textarea id="chords" data-chords rows="2" cols="60"></textarea>
+        <button id="analyzeBtn" data-analyze>Analizar</button>
+        <button id="clearBtn" data-clear>Limpiar</button>
+    </section>
+
+    <section class="analysis-section">
+        <h2>Análisis y re-armonizaciones posibles</h2>
+        <div id="analysis" data-analysis></div>
+    </section>
+
+    <section class="result-section">
+        <h2>Rearmonización obtenida</h2>
+        <textarea id="resultChords" data-result rows="2" cols="60" readonly></textarea>
+    </section>
+    </main>
+    <footer class="site-footer">
+        <p>Jaime Jaramillo Arias 2025</p>
+    </footer>
+    <script src="script.js"></script>
+    <script>initRearmonizador();</script>
+</body>
+</html>
