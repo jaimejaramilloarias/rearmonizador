@@ -125,3 +125,12 @@ const mi = interc.filter(o => o.name.startsWith('Intercambio modal')).map(o => o
 assert.ok(mi.includes('Dm7(b5)') && mi.includes('Dm7'));
 const label = interc.find(o => o.name.includes('MenorArmonica')).name;
 assert.equal(label, 'Intercambio modal (MenorArmonica: D\u00ba, Dm7(b5))');
+
+const modalFlat = context.reharmonizationOptions('Bb','maj7','IV','F','Mayor')
+    .find(o => o.name.startsWith('Intercambio modal'));
+assert.ok(modalFlat.chords[0].startsWith('Bb'));
+
+const modalSharp = context.reharmonizationOptions('C#','m7','II','B','Mayor')
+    .find(o => o.name.startsWith('Intercambio modal'));
+assert.ok(modalSharp.chords[0].startsWith('C#'));
+console.log('Modal interchange enharmonic tests passed');
