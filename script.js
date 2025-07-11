@@ -443,7 +443,7 @@ function simpleSubstitutions(root, suffix, degree, keyRoot, keyScale){
     return candidates;
 }
 
-function modalInterchangeChords(degree, keyRoot, keyScale){
+function modalInterchangeChords(degree, keyRoot, keyScale, origRoot=null){
     const idxMatch = degree && degree.match(/^(VII|VI|V|IV|III|II|I)/);
     if(!idxMatch || !keyRoot || !keyScale) return [];
     const deg = idxMatch[1];
@@ -451,7 +451,13 @@ function modalInterchangeChords(degree, keyRoot, keyScale){
     const out = [];
     for(const sc of SCALE_PRIORITY){
         if(sc === keyScale) continue;
-        const note = noteForDegree(keyRoot, deg, sc);
+        let note = noteForDegree(keyRoot, deg, sc);
+        if(origRoot){
+            const semi = noteToSemitone(note);
+            if(origRoot.includes('b')) note = semitoneToNoteFlat(semi);
+            else if(origRoot.includes('#')) note = semitoneToNote(semi);
+            else note = DEFAULT_FLATS.has(semi) ? semitoneToNoteFlat(semi) : semitoneToNote(semi);
+        }
         const sufs = SCALE_DATA[sc].chords[idxMap[deg]];
         const chords = sufs.map(s => note + s);
         const def = note + defaultSuffixForDegree(sc, deg);
@@ -483,7 +489,7 @@ function reharmonizationOptions(root, suffix='', degree=null, keyRoot=null, keyS
         opts.push({name:`Sustituci\u00f3n simple (${sub})`, chords:[sub]});
     }
 
-    for(const mod of modalInterchangeChords(degree, keyRoot, keyScale)){
+    for(const mod of modalInterchangeChords(degree, keyRoot, keyScale, root)){
         const label = `${mod.scale}: ${mod.chords.join(', ')}`;
         opts.push({name:`Intercambio modal (${label})`, chords:[mod.defaultChord], modalChords:mod.chords});
     }
