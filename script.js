@@ -506,6 +506,28 @@ function reharmonizationOptions(root, suffix='', degree=null, keyRoot=null, keyS
     return opts;
 }
 
+function showChordChoice(choices, fallback){
+    return new Promise(resolve => {
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        const box = document.createElement('div');
+        box.className = 'modal-box';
+        const title = document.createElement('div');
+        title.textContent = 'Seleccione un acorde:';
+        title.style.marginBottom = '10px';
+        box.appendChild(title);
+        choices.forEach(ch => {
+            const btn = document.createElement('button');
+            btn.textContent = ch;
+            btn.addEventListener('click', () => { overlay.remove(); resolve(ch); });
+            box.appendChild(btn);
+        });
+        overlay.addEventListener('click', e => { if(e.target === overlay){ overlay.remove(); resolve(fallback); } });
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+    });
+}
+
 function initRearmonizador(options = {}) {
     if (typeof document === 'undefined') return;
     const defaults = {
@@ -613,24 +635,20 @@ function initRearmonizador(options = {}) {
                 rehSel.selectedIndex = 0;
             });
 
-            rehSel.addEventListener('change', ev => {
+            rehSel.addEventListener('change', async ev => {
                 if (!ev.target.value) return;
                 const option = rehSel.options[rehSel.selectedIndex];
                 const name = option.dataset.name;
                 let chords = ev.target.value.split(/\s+/);
                 if (option.dataset.all) {
                     const choices = option.dataset.all.split('|');
-                    const chosen = window.prompt('Seleccione un acorde:\n' + choices.join(', '), chords[0]);
-                    if (chosen && choices.includes(chosen.trim())) {
-                        chords = [chosen.trim()];
-                    } else {
-                        chords = [chords[0]];
-                    }
+                    const chosen = await showChordChoice(choices, chords[0]);
+                    chords = [chosen];
                 }
                 const idxSel = parseInt(rehSel.dataset.idx, 10);
                 const tok = parseInt(rehSel.dataset.tok, 10);
                 const resultDiv = rehSel.parentNode.parentNode.querySelector('.result');
-                if (name.startsWith('Sustituci\u00f3n simple') || name === 'Line clich\u00e9') {
+                if (name.startsWith('Sustituci\u00f3n simple') || name === 'Line clich\u00e9' || name.startsWith('Intercambio modal')) {
                     reharmonizations[tok] = {type:'replace', chords};
                 } else {
                     const target = idxSel > 0 ? chordTokenIndices[idxSel-1] : tok;
