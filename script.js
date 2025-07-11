@@ -29,11 +29,16 @@ function simplifySuffix(suf){
     suf = suf.replace(/∆/g,'maj7');
     const hadExt = /(9|11|13)/.test(suf);
     suf = suf.replace(/9|11|13|add9/g,'');
-    suf = suf.replace(/\([^)]*\)/g, '');
+    suf = suf.replace(/\((?!b5|maj7)[^)]*\)/g, '');
     suf = suf.replace(/^(?:-|mi|min)/i,'m');
     suf = suf.replace(/dim7?|dis7?/i, m => m.toLowerCase().includes('7') ? 'º7' : 'º');
     suf = suf.replace(/ø/,'m7(b5)');
     if(/maj(?!7)/i.test(suf)) suf = suf.replace(/maj(?!7)/i,'maj7');
+    suf = suf.replace(/mmaj7/g, 'm(maj7)');
+    suf = suf.replace(/7b5/g, '7(b5)');
+    suf = suf.replace(/b57/g, '(b5)7');
+    suf = suf.replace(/b5maj7/g, '(b5)maj7');
+    if(suf==='b5') suf='(b5)';
     const has7 = /7/.test(suf);
     const hasMaj = /maj7/.test(suf);
     if(hadExt && !has7 && !hasMaj){
@@ -61,7 +66,7 @@ const SCALE_DATA = {
     'MenorArmonica': {
         intervals: [0,2,3,5,7,8,11],
         chords: [
-            ['m','mmaj7'],
+            ['m','m(maj7)'],
             ['º','m7(b5)'],
             ['+','+maj7'],
             ['m','m6','m7'],
@@ -74,13 +79,13 @@ const SCALE_DATA = {
     'MenorMelodica': {
         intervals: [0,2,3,5,7,9,11],
         chords: [
-            ['m','m6','mmaj7'],
+            ['m','m6','m(maj7)'],
             ['m','m7','sus4','7sus4','7sus4b9','sus4addb2'],
-            ['b5','b5maj7'],
-            ['','7','b5','7b5'],
+            ['(b5)','(b5)maj7'],
+            ['','7','(b5)','7(b5)'],
             ['','7','sus4','7sus4'],
             ['º','m7(b5)'],
-            ['+','b5','+7','b57']
+            ['+','(b5)','+7','(b5)7']
         ],
         functions: ['T','S','T','S','D','T','D']
     },
@@ -90,7 +95,7 @@ const SCALE_DATA = {
             ['+','+maj7'],
             ['º','m7(b5)'],
             ['','7','+','+7'],
-            ['m','m6','mmaj7'],
+            ['m','m6','m(maj7)'],
             ['','7','sus4','7sus4'],
             ['+','+maj7'],
             ['º','º7']
@@ -357,13 +362,13 @@ function backDoorFor(root){
 
 function lineClicheFor(root, suffix='', degree=null){
     if(/^m(?:7|6)?$/.test(suffix)){
-        return [root+"m", root+"mmaj7", root+"m7", root+"m6"];
+        return [root+"m", root+"m(maj7)", root+"m7", root+"m6"];
     }
     if(/^(?:|6|maj7)$/.test(suffix)){
         return [root, root+"+", root+"6"];
     }
     if(degree && /^V/.test(degree)){
-        return [root+"7b5", root+"7", root+"+7", root+"13"];
+        return [root+"7(b5)", root+"7", root+"+7", root+"13"];
     }
     return null;
 }

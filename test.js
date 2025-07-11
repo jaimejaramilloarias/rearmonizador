@@ -96,7 +96,7 @@ const majV = context.analyzeProgression('Dm7 Gmaj7 Cmaj7');
 assert.notEqual(majV.analysis[1].degree, 'V');
 const minV = context.analyzeProgression('Dm7 Gm7 Cmaj7');
 assert.notEqual(minV.analysis[1].degree, 'V');
-const b5V = context.analyzeProgression('Dm7 G7b5 Cmaj7');
+const b5V = context.analyzeProgression('Dm7 G7(b5) Cmaj7');
 assert.equal(b5V.analysis[1].degree, 'V');
 const augV = context.analyzeProgression('Dm7 G+7 Cmaj7');
 assert.equal(augV.analysis[1].degree, 'V');
@@ -107,7 +107,7 @@ assert.equal(skip.analysis[0].degree, 'IIø/III');
 // Line cliché
 const lcMinor = context.reharmonizationOptions('D','m7','II','C','Mayor');
 const optMinor = lcMinor.find(o => o.name === 'Line clich\u00e9');
-assert.equal(optMinor.chords.join(' '), 'Dm Dmmaj7 Dm7 Dm6');
+assert.equal(optMinor.chords.join(' '), 'Dm Dm(maj7) Dm7 Dm6');
 
 const lcMajor = context.reharmonizationOptions('C','maj7','I','C','Mayor');
 const optMajor = lcMajor.find(o => o.name === 'Line clich\u00e9');
@@ -115,7 +115,7 @@ assert.equal(optMajor.chords.join(' '), 'C C+ C6');
 
 const lcDom = context.reharmonizationOptions('G','7','V','C','Mayor');
 const optDom = lcDom.find(o => o.name === 'Line clich\u00e9');
-assert.equal(optDom.chords.join(' '), 'G7b5 G7 G+7 G13');
+assert.equal(optDom.chords.join(' '), 'G7(b5) G7 G+7 G13');
 
 const majSubV = context.analyzeProgression('Dm7 Dbmaj7 Cmaj7');
 assert.equal(majSubV.analysis[1].degree, 'subV\u2206');
