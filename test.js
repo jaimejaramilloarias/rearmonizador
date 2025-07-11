@@ -119,3 +119,7 @@ assert.equal(optDom.chords.join(' '), 'G7b5 G7 G+7 G13');
 
 const majSubV = context.analyzeProgression('Dm7 Dbmaj7 Cmaj7');
 assert.equal(majSubV.analysis[1].degree, 'subV\u2206');
+
+const interc = context.reharmonizationOptions('D','m7','II','C','Mayor');
+const mi = interc.filter(o => o.name.startsWith('Intercambio modal')).map(o => o.chords[0]);
+assert.ok(mi.includes('Dm7(b5)') && mi.includes('Dm7'));
