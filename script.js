@@ -485,7 +485,7 @@ function reharmonizationOptions(root, suffix='', degree=null, keyRoot=null, keyS
 
     for(const mod of modalInterchangeChords(degree, keyRoot, keyScale)){
         const label = `${mod.scale}: ${mod.chords.join(', ')}`;
-        opts.push({name:`Intercambio modal (${label})`, chords:[mod.defaultChord]});
+        opts.push({name:`Intercambio modal (${label})`, chords:[mod.defaultChord], modalChords:mod.chords});
     }
 
     const lc = lineClicheFor(root, suffix, degree);
@@ -577,7 +577,10 @@ function initRearmonizador(options = {}) {
 
             const initial = alts[selIdx];
             const opts = reharmonizationOptions(item.chord.root, item.chord.suffix, initial.degree, initial.key.note, initial.key.scale)
-                .map(o => `<option value="${o.chords.join(' ')}" data-name="${o.name}">${o.name}</option>`)
+                .map(o => {
+                    const extra = o.modalChords ? ` data-all="${o.modalChords.join('|')}"` : '';
+                    return `<option value="${o.chords.join(' ')}" data-name="${o.name}"${extra}>${o.name}</option>`;
+                })
                 .join('');
             const rehWrap = document.createElement('div');
             rehWrap.className = 'custom-select-wrapper';
@@ -601,7 +604,10 @@ function initRearmonizador(options = {}) {
                 selectedAnalyses[i] = aIdx;
                 const choice = analysisChoices[i][aIdx];
                 const newOpts = reharmonizationOptions(item.chord.root, item.chord.suffix, choice.degree, choice.key.note, choice.key.scale)
-                    .map(o => `<option value="${o.chords.join(' ')}" data-name="${o.name}">${o.name}</option>`)
+                    .map(o => {
+                        const extra = o.modalChords ? ` data-all="${o.modalChords.join('|')}"` : '';
+                        return `<option value="${o.chords.join(' ')}" data-name="${o.name}"${extra}>${o.name}</option>`;
+                    })
                     .join('');
                 rehSel.innerHTML = `<option value="">Rearmonizar...</option>${newOpts}`;
                 rehSel.selectedIndex = 0;
@@ -611,7 +617,16 @@ function initRearmonizador(options = {}) {
                 if (!ev.target.value) return;
                 const option = rehSel.options[rehSel.selectedIndex];
                 const name = option.dataset.name;
-                const chords = ev.target.value.split(/\s+/);
+                let chords = ev.target.value.split(/\s+/);
+                if (option.dataset.all) {
+                    const choices = option.dataset.all.split('|');
+                    const chosen = window.prompt('Seleccione un acorde:\n' + choices.join(', '), chords[0]);
+                    if (chosen && choices.includes(chosen.trim())) {
+                        chords = [chosen.trim()];
+                    } else {
+                        chords = [chords[0]];
+                    }
+                }
                 const idxSel = parseInt(rehSel.dataset.idx, 10);
                 const tok = parseInt(rehSel.dataset.tok, 10);
                 const resultDiv = rehSel.parentNode.parentNode.querySelector('.result');
